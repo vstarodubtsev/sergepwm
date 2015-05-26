@@ -13,7 +13,7 @@
 MCU = atmega8
 
 # Processor frequency.
-F_CPU = 16000000
+F_CPU = 8000000
 
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
@@ -27,7 +27,7 @@ TARGET = main
 OBJDIR = ./obj
 
 # List C source files here.
-SRC = main.c hal.c EERTOS.c
+SRC = main.c hal.c EERTOS.c ds18x20.c
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.

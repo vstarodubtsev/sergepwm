@@ -7,7 +7,7 @@
 void timer1_init(void)
 {
 	//fast pwm top ICR1
-	// Clock value: 16M/8
+	// Clock value: 8M/8
 	// Mode: Fast PWM top=ICR1
 	// OC1A output: Non-Inv.
 	// OC1B output: None.
@@ -22,8 +22,8 @@ void timer1_init(void)
 
 	TCNT1H = 0x00;
 	TCNT1L = 0x00;
-	ICR1H=0x07; //1999
-	ICR1L=0xCF;
+	ICR1H=0x03; //999
+	ICR1L=0xE7;
 	//ICR1 = TOP_PWM;
 	OCR1AH = 0x00;
 	OCR1AL = 0x00;
@@ -34,16 +34,18 @@ void timer1_init(void)
 
 void set_timet1_pwm (u8 pwm_persent)
 {
-	u16 val = (u16)pwm_persent * 20 - 1;
+	u16 val = (u16)pwm_persent * 10 - 1;
 	OCR1AH = val >> 8;
 	OCR1AL = val & 0xFF;
 }
 
 void init_gpio(void)
 {
-	LED_DDR  |=  (1<<GREEN_LED_PIN);
-	LED_PORT &= ~(1<<GREEN_LED_PIN);
-	DDRB |= 1 << 1 | 1 << 2;
+	RGB_DDR  |=  (1<<RGB_RED_PIN)|(1<<RGB_BLUE_PIN)|(1<<RGB_GREEN_PIN);
+	RGB_PORT &= ~((1<<RGB_RED_PIN)|(1<<RGB_BLUE_PIN)|(1<<RGB_GREEN_PIN));
+	//RGB_PORT |= (1<<RGB_RED_PIN);
+	
+	
 }
 
 void init_adc(void)

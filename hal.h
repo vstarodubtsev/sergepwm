@@ -22,10 +22,22 @@
 #define BAUD 38400
 #define BAUD_PRESCALE (((F_CPU / (BAUD * 16UL))) - 1)
 
-// define PCB configuration here
-#define GREEN_LED_PIN		0	  	//PB0
-#define LED_PORT    		PORTB
-#define LED_DDR				DDRB
+// PCB configuration
+
+#define RGB_DDR				DDRD
+#define RGB_PORT			PORTD
+#define RGB_RED_PIN 		5		//PD5
+#define RGB_GREEN_PIN		3		//PD3
+#define RGB_BLUE_PIN		4		//PD4
+
+
+#define DS1820_PORT			PORTD	//PD2
+#define DS1820_DDR			DDRD
+#define DS1820_PIN			PIND
+#define DS1820_PIN_NUM		2
+
+
+
 
 //functions declarations
 void init_gpio(void);
