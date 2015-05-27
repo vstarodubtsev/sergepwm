@@ -24,10 +24,10 @@ TARGET = main
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
 #     this an empty or blank macro!
-OBJDIR = ./obj
+OBJDIR = .
 
 # List C source files here.
-SRC = main.c hal.c EERTOS.c ds18x20.c
+SRC = main.c hal.c EERTOS.c ds18x20.c cli.c microrl/microrl.c
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
@@ -280,19 +280,9 @@ sizeafter:
 gccversion : 
 	@$(CC) --version
 
-
-STK_PATH = D:/AVRWorkspace/Forsazh/STK500
-
 # Program the device.  
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) -c usbasp -p $(MCU) -v -e -U flash:w:$(TARGET).hex:i
-
-#$(STK_PATH)/STK500.EXE -cUSB -dATmega32C1 -e -if$(TARGET).hex -pf -ef -vf
-#$(STK_PATH)/STK500.EXE -cUSB -dATmega32C1 -e -if$(TARGET).hex -pf -ef
-#$(AVRDUDE) -p ATmega32C1 -c avr910 -e -b 115200 -P com2 -U flash:w:$(TARGET).hex:i
-#
-#$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
-
 
 # Program the device.  
 eedump:

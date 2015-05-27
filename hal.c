@@ -83,7 +83,7 @@ void uart_init(void)
 	UBRRH = (BAUD_PRESCALE >> 8);
 	UBRRL = BAUD_PRESCALE;
 	// Enable the USART Receive interrupt
-	//UCSRB |= (1 << RXCIE );
+	UCSRB |= (1 << RXCIE );
 }
 
 void uart_putc (char send)
@@ -102,9 +102,7 @@ void uart_puts (const char *send)
 	}
 }
 
-/*
-ISR (USART_RXC_vect)
+void print (const char * str)
 {
-	uart_putc(UDR); //echo
+	uart_puts (str);
 }
-*/

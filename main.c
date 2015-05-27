@@ -2,9 +2,15 @@
 #include "types.h"
 #include "hal.h"
 #include "ds18x20.h"
+#include "microrl/microrl.h"
+#include "cli.h"
 
 // global variables
 u16 num_cycles;
+
+//microrl object and pointer on it
+microrl_t rl;
+microrl_t * prl = &rl;
 
 // Task's poll intervals
 const u16 uart_periodic_timer_ms = 2000;
@@ -21,6 +27,11 @@ void led_blink(void);
 ISR(TIMER1_OVF_vect) //1ms periodic
 {
 	TimerService();
+}
+
+ISR(USART_RXC_vect) //UART recieve 
+{
+	microrl_insert_char (prl, UDR);
 }
 
 /*unsigned long to ansi*/
@@ -89,18 +100,30 @@ void main(void)
 
 	InitRTOS();
 
+	microrl_init (prl, print);
+	// set callback for execute
+	microrl_set_execute_callback (prl, execute);
+
+#ifdef _USE_COMPLETE
+	// set callback for completion
+	microrl_set_complete_callback (prl, complet);
+#endif
+
+#ifdef _USE_CTLR_C
+	// set callback for Ctrl+C
+	microrl_set_sigint_callback (prl, sigint);
+#endif
+
 	sei();//enable interrupts
 
-	// Запуск фоновых задач.
+	// backgroud tast start
 	SetTask(led_blink);
-	SetTimerTask(uart_periodic, uart_periodic_timer_ms);
-	
+	//SetTimerTask(uart_periodic, uart_periodic_timer_ms);
+
 	SetTask(pwm_cycle);
-	
-	uart_puts("Digital started\n\r");
 
 	for(;;) {
-		TaskManager();  // Вызов диспетчера
+		TaskManager();
 	}
 
 }

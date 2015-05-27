@@ -52,5 +52,6 @@ u8  get_adc(void);
 void uart_init(void);
 void uart_putc (char send);
 void uart_puts (const char *send);
+void print (const char * str);
 
 #endif //HAL_H
