@@ -24,7 +24,7 @@ void led_blink(void);
 
 // Interrupts ===================================================================
 
-ISR(TIMER1_OVF_vect) //1ms periodic
+ISR(TIMER2_OVF_vect) //1ms periodic
 {
 	TimerService();
 }
@@ -94,6 +94,7 @@ void main(void)
 	//init_adc();
 	uart_init();
 	timer1_init();
+	timer2_init();
 	dc_now = 0;
 	set_timet1_pwm(dc_now);
 	num_cycles = 0;

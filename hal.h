@@ -44,6 +44,7 @@ void init_gpio(void);
 u8 get_current_from_switch(void);
 
 void timer1_init(void);
+void timer2_init(void);
 void set_timet1_pwm (u8 pwm_persent);
 
 void init_adc(void);

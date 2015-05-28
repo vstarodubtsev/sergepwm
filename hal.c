@@ -13,7 +13,7 @@ void timer1_init(void)
 	// OC1B output: None.
 	// Noise Canceler: Off
 	// Input Capture on Falling Edge
-	// Timer1 Overflow Interrupt: On
+	// Timer1 Overflow Interrupt: Off
 	// Input Capture Interrupt: Off
 	// Compare A Match Interrupt: Off
 	// Compare B Match Interrupt: Off
@@ -29,7 +29,20 @@ void timer1_init(void)
 	OCR1AL = 0x00;
 	OCR1BH = 0x00;
 	OCR1BL = 0x00;
-	TIMSK = 1ul << TOIE1; //overflow interrupt
+	//TIMSK |= 1ul << TOIE1; //overflow interrupt
+}
+
+void timer2_init(void)
+{
+	//1ms ticks
+	// Clock value: 8M/64
+	// Timer2 Overflow Interrupt: On
+	// TOP: OCR2
+	TCCR2 = 0ul << CS20 | 0ul << CS21 | 1ul << CS22 | 0ul <<  WGM20 | 1ul <<  WGM21 | 0ul <<  COM20 | 0ul <<  COM21; 
+	TCNT2 = 0;
+	OCR2 = 124;	//125 * 64 = 8000
+
+	TIMSK |= 1ul << TOIE2; //overflow interrupt
 }
 
 void set_timet1_pwm (u8 pwm_persent)
