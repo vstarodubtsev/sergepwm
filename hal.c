@@ -7,7 +7,7 @@
 void timer1_init(void)
 {
 	//fast pwm top ICR1
-	// Clock value: 8M/8
+	// Clock value: 8M/1
 	// Mode: Fast PWM top=ICR1
 	// OC1A output: Non-Inv.
 	// OC1B output: None.
@@ -17,13 +17,13 @@ void timer1_init(void)
 	// Input Capture Interrupt: Off
 	// Compare A Match Interrupt: Off
 	// Compare B Match Interrupt: Off
-	TCCR1A = 0ul << WGM10 | 1ul << WGM11 | 0ul << COM1B0 | 1ul << COM1B1 | 0ul << COM1A0 | 1ul << COM1A1;
-	TCCR1B = 0ul << CS10 | 1ul << CS11 | 0ul << CS12 | 1ul << WGM12 | 1ul << WGM13 | 0ul << ICES1 | 0ul << ICNC1;
+	TCCR1A = 0ul << WGM10 | 1ul << WGM11 | 0ul << COM1B0 | 0ul << COM1B1 | 0ul << COM1A0 | 1ul << COM1A1;
+	TCCR1B = 1ul << CS10 | 0ul << CS11 | 0ul << CS12 | 1ul << WGM12 | 1ul << WGM13 | 0ul << ICES1 | 0ul << ICNC1;
 
 	TCNT1H = 0x00;
 	TCNT1L = 0x00;
-	ICR1H=0x03; //999
-	ICR1L=0xE7;
+	ICR1H=0x01; //400 * 20kHz = 8MHz
+	ICR1L=0x90;
 	//ICR1 = TOP_PWM;
 	OCR1AH = 0x00;
 	OCR1AL = 0x00;
@@ -31,23 +31,41 @@ void timer1_init(void)
 	OCR1BL = 0x00;
 	//TIMSK |= 1ul << TOIE1; //overflow interrupt
 }
+/*
+void timer1_set_freq(u8 freq_khz)
+{
+	if (freq_khz = 0) { //pwm_off
+		set_timet1_pwm(0);
+		return;
+	}
+	//1000
+
+	ICR 1000 F 1k
+	ICR 100	 F = 10K
+
+	u16 icr = 1000/
+
+	ICR1H=0x03; //999
+	ICR1L=0xE7;
+}
+*/
 
 void timer2_init(void)
 {
 	//1ms ticks
 	// Clock value: 8M/64
-	// Timer2 Overflow Interrupt: On
+	// Timer2 Compate Interrupt: On
 	// TOP: OCR2
 	TCCR2 = 0ul << CS20 | 0ul << CS21 | 1ul << CS22 | 0ul <<  WGM20 | 1ul <<  WGM21 | 0ul <<  COM20 | 0ul <<  COM21; 
 	TCNT2 = 0;
 	OCR2 = 124;	//125 * 64 = 8000
 
-	TIMSK |= 1ul << TOIE2; //overflow interrupt
+	TIMSK |= 1ul << OCIE2; //output compare interrupt
 }
 
 void set_timet1_pwm (u8 pwm_persent)
 {
-	u16 val = (u16)pwm_persent * 10 - 1;
+	u16 val = ((u16)pwm_persent << 2);
 	OCR1AH = val >> 8;
 	OCR1AL = val & 0xFF;
 }
@@ -58,6 +76,8 @@ void init_gpio(void)
 	RGB_PORT &= ~((1<<RGB_RED_PIN)|(1<<RGB_BLUE_PIN)|(1<<RGB_GREEN_PIN));
 	//RGB_PORT |= (1<<RGB_RED_PIN);
 	
+	DDRB |= 1ul << 1;
+//	PORTB  |= 1ul << 1;
 	
 }
 
@@ -118,4 +138,12 @@ void uart_puts (const char *send)
 void print (const char * str)
 {
 	uart_puts (str);
+}
+
+void pgmspace_print (const char * pstr)
+{
+	char c;
+	while (c = pgm_read_byte(pstr++) ) {
+		uart_putc(c);
+	}
 }

@@ -2,40 +2,78 @@
 #include <stdlib.h>
 #include <avr/io.h>
 #include "cli.h"
-
-
-#define _AVR_DEMO_VER "1.0"
+#include "types.h"
+#include "hal.h"
+#include "process.h"
 
 // definition commands word
 #define _CMD_HELP   "help"
 #define _CMD_CLEAR  "clear"
-#define _CMD_CLR    "clear_port"
-#define _CMD_SET    "set_port"
-// arguments for set/clear
-	#define _SCMD_PB  "port_b"
-	#define _SCMD_PD  "port_d"
 
-#define _NUM_OF_CMD 4
-#define _NUM_OF_SETCLEAR_SCMD 2
+#define _CMD_SET          "set"
+// arguments for get
+	#define _SG_PWM       "pwm"				//0-100
+	#define _SG_FREQ      "freq"			//5 10 20 30 40 50 in kHz
+	#define _S_TIME_START "start_time"      //1000ms
+	#define _S_TIME_STOP  "stop_time"       //1000ms
+	#define _S_TIME_ON    "on_time"    	    //5000ms
+	#define _S_TIME_OFF   "off_time"        //7000ms
+	#define _S_CYCLES     "cycles"
+	#define _S_LOW_PWM    "lpwm"			//10
+	#define _S_HIGH_PWM   "hpwm"			//95
+
+
+#define _CMD_GET          "get"
+// arguments for get
+//	#define _SG_PWM       "pwm"
+	#define _G_TEMP       "temp"
+	#define _G_STATE      "state"	//timings, pwm frequency, voltage, current, rest cycles, past cycles
+
+
+#define _CMD_PROCESS  "process"
+// arguments for process
+	#define _P_START       "start"
+	#define _P_STOP        "stop"
+	
+
+#define _NUM_OF_CMD 4	//5
+#define _NUM_OF_SETGET_SCMD 2
+
+#define _NUM_OF_SET_SCMD 8
+#define _NUM_OF_GET_SCMD 3
+#define _NUM_OF_PROCESS_SCMD 2
 
 //available  commands
-char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_SET, _CMD_CLR};
-// 'set/clear' command argements
-char * set_clear_key [] = {_SCMD_PB, _SCMD_PD};
+char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_SET, _CMD_GET/*, CMD_PROCESS*/};
+// 'set/get' command argements
+char * set_get_key [] = {_SG_PWM, _G_TEMP, _G_STATE};
+
+#ifdef _USE_COMPLETE
+
+// 'set' command argements
+char * set_key [] = {_SG_PWM, _SG_FREQ, _S_TIME_START, _S_TIME_STOP, _S_TIME_ON, _S_TIME_OFF, _S_CYCLES, _S_CYCLES, _S_LOW_PWM, _S_HIGH_PWM};
+
+// 'get' command argement
+char * get_key [] = {_SG_PWM, _G_TEMP, _G_STATE};
+
+// 'process' command argements
+char * process_key [] = {_P_START, _P_STOP};
 
 // array for comletion
 char * compl_world [_NUM_OF_CMD + 1];
 
+#endif //_USE_COMPLETE
 
 
 void print_help (void)
 {
 #ifdef _USE_COMPLETE
-	print ("Use TAB key for completion\n\rCommand:\n\r");
+	pprint ("Use TAB key for completion\n\rCommand:\n\r");
 #endif
-	print ("\tclear               - clear screen\n\r");
-	print ("\tset_port port pin   - set 1 port[pin] value, support only 'port_b' and 'port_d'\n\r");
-	print ("\tclear_port port pin - set 0 port[pin] value, support only 'port_b' and 'port_d'\n\r");
+	pprint ("\tclear  - clear screen\n\r");
+	pprint ("\tset {pwm, temp, start_time, stop_time, off_time, cycles, lpwm, hpwm} VALUE\n\r");
+	pprint ("\tget {pwm, status}\n\r");
+	pprint ("\tprocess {start, stop}\n\r");
 }
 
 //*****************************************************************************
@@ -47,45 +85,101 @@ int execute (int argc, const char * const * argv)
 	// just iterate through argv word and compare it with your commands
 	while (i < argc) {
 		if (strcmp (argv[i], _CMD_HELP) == 0) {
-			print ("PWM stand\n\r");
+			pprint ("PWM stand\n\r");
 			print_help ();        // print help
 		} else if (strcmp (argv[i], _CMD_CLEAR) == 0) {
-			print ("\033[2J");    // ESC seq for clear entire screen
-			print ("\033[H");     // ESC seq for move cursor at left-top corner
-		} else if ((strcmp (argv[i], _CMD_SET) == 0) || 
-							(strcmp (argv[i], _CMD_CLR) == 0)) {
+			pprint ("\033[2J");    // ESC seq for clear entire screen
+			pprint ("\033[H");     // ESC seq for move cursor at left-top corner
+		} else if (strcmp (argv[i], _CMD_SET) == 0) {
 			if (++i < argc) {
-				int val = strcmp (argv[i-1], _CMD_CLR);
-				unsigned char * port = NULL;
-				int pin = 0;
-				if (strcmp (argv[i], _SCMD_PD) == 0) {
-					port = (unsigned char *)&PORTD;
-				} else if (strcmp (argv[i], _SCMD_PB) == 0) {
-					port = (unsigned char *)&PORTB;
+				u16 setvalue;
+				if ((i+1) < argc) {
+					setvalue = atoi (argv[i+1]);
 				} else {
-					print ("only '");
-					print (_SCMD_PB);
-					print ("' and '");
-					print (_SCMD_PD);
-					print ("' support\n\r");
+					pprint ("Specify value for set command\n\r");
 					return 1;
 				}
-				if (++i < argc) {
-					pin = atoi (argv[i]);
-					//do smth here
+
+				if (strcmp (argv[i], _SG_PWM)  == 0) {
+					//TODO check val
+					set_timet1_pwm(setvalue);
+					pprint ("set pwm ok\n\r");
+					return 0;
+				} else if (strcmp (argv[i], _S_TIME_START)  == 0) {
+					;
+					return 0;
+				} else if (strcmp (argv[i], _S_TIME_STOP)  == 0) {
+					;
+					return 0;
+				} else if (strcmp (argv[i], _S_TIME_ON)  == 0) {
+					;
+					return 0;
+				} else if (strcmp (argv[i], _S_TIME_OFF)  == 0) {
+					;
+					return 0;
+				} else if (strcmp (argv[i], _S_CYCLES)  == 0) {
+					;
+					return 0;
+				} else if (strcmp (argv[i], _S_LOW_PWM)  == 0) {
+					;
+					return 0;
+				} else if (strcmp (argv[i], _S_HIGH_PWM)  == 0) {
+					;
 					return 0;
 				} else {
-					print ("specify pin number, use Tab\n\r");
+					pprint ("No such set command:");
+					print ((char*)argv[i]);
+					pprint ("\n\r");
 					return 1;
 				}
 			} else {
-					print ("specify port, use Tab\n\r");
+				pprint ("specify set command, use Tab\n\r");
+				return 1;
+			}
+		} else if (strcmp (argv[i], _CMD_GET) == 0) {
+			if (++i < argc) {
+				if (strcmp (argv[i], _SG_PWM)  == 0) {
+					pprint ("pwm = 50\%\n\r");
+					return 0;
+				} else if (strcmp (argv[i], _G_TEMP) == 0) {
+					print_temp();
+					return 0;
+				} else if (strcmp (argv[i], _G_STATE) == 0) {
+					process_print_state();
+					return 0;
+				} else {
+					pprint ("No such get command:");
+					print ((char*)argv[i]);
+					pprint ("\n\r");
+					return 1;
+				}
+			} else {
+					pprint ("specify getcommand, use Tab\n\r");
+				return 1;
+			}
+
+		} else if (strcmp (argv[i], _CMD_PROCESS) == 0) {
+			if (++i < argc) {
+				if (strcmp (argv[i], _P_START)  == 0) {
+					process_start();
+					return 0;
+				} else if (strcmp (argv[i], _P_STOP) == 0) {
+					process_stop();
+					return 0;
+				} else {
+					pprint ("No such process command:");
+					print ((char*)argv[i]);
+					print ("\n\r");
+					return 1;
+				}
+			} else {
+				pprint ("specify process, use Tab\n\r");
 				return 1;
 			}
 		} else {
-			print ("command: '");
+			pprint ("command: '");
 			print ((char*)argv[i]);
-			print ("' Not found.\n\r");
+			pprint ("' Not found.\n\r");
 		}
 		i++;
 	}
@@ -114,11 +208,11 @@ char ** complet (int argc, const char * const * argv)
 			}
 		}
 	}	else if ((argc > 1) && ((strcmp (argv[0], _CMD_SET)==0) || 
-													 (strcmp (argv[0], _CMD_CLR)==0))) { // if command needs subcommands
+							    (strcmp (argv[0], _CMD_GET)==0))) { // if command needs subcommands
 		// iterate through subcommand
-		for (int i = 0; i < _NUM_OF_SETCLEAR_SCMD; i++) {
-			if (strstr (set_clear_key [i], argv [argc-1]) == set_clear_key [i]) {
-				compl_world [j++] = set_clear_key [i];
+		for (int i = 0; i < _NUM_OF_SETGET_SCMD; i++) {
+			if (strstr (set_get_key [i], argv [argc-1]) == set_get_key [i]) {
+				compl_world [j++] = set_get_key [i];
 			}
 		}
 	} else { // if there is no token in cmdline, just print all available token
@@ -138,6 +232,6 @@ char ** complet (int argc, const char * const * argv)
 #ifdef _USE_CTLR_C
 void sigint (void)
 {
-	print ("^C catched!\n\r");
+	pprint ("^C catched!\n\r");
 }
 #endif

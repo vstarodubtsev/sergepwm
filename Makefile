@@ -27,7 +27,7 @@ TARGET = main
 OBJDIR = .
 
 # List C source files here.
-SRC = main.c hal.c EERTOS.c ds18x20.c cli.c microrl/microrl.c
+SRC = main.c hal.c EERTOS.c ds18x20.c cli.c microrl/microrl.c process.c
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.

@@ -27,19 +27,19 @@ Token is word separate by white space, for example 3 token line:
 Define you prompt string here. You can use colors escape code, for highlight you prompt,
 for example this prompt will green color (if you terminal supports color)*/
 //#define _PROMPT_DEFAULT "\033[32mIRin >\033[0m "	// green color
-#define _PROMPT_DEFAULT "\033[32mIRin >\033[0m "	// green color
+#define _PROMPT_DEFAULT "\033[32m>\033[0m "	// green color
 //#define _PROMPT_DEFAULT "IRin > "
 
 /*
 Define prompt text (without ESC sequence, only text) prompt length, it needs because if you use
 ESC sequence, it's not possible detect only text length*/
-#define _PROMPT_LEN       7
+#define _PROMPT_LEN       2
 
 /*Define it, if you wanna use completion functional, also set completion callback in you code,
 now if user press TAB calls 'copmlitetion' callback. If you no need it, you can just set 
 NULL to callback ptr and do not use it, but for memory saving tune, 
 if you are not going to use it - disable this define.*/
-#define _USE_COMPLETE
+//#define _USE_COMPLETE
 
 /*Define it, if you wanna use history. It s work's like bash history, and
 set stored value to cmdline, if UP and DOWN key pressed. Using history add
@@ -69,7 +69,7 @@ Try to build with and without, and compare total code size for tune library.
 
 /*
 Enable 'interrupt signal' callback, if user press Ctrl+C */
-#define _USE_CTLR_C
+//#define _USE_CTLR_C
 
 /*
 Print prompt at 'microrl_init', if enable, prompt will print at startup, 

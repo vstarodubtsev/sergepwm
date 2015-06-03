@@ -9,6 +9,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/pgmspace.h>
 
 #include "types.h"
 
@@ -46,6 +47,7 @@ u8 get_current_from_switch(void);
 void timer1_init(void);
 void timer2_init(void);
 void set_timet1_pwm (u8 pwm_persent);
+void timer1_set_freq(u8 freq_khz);
 
 void init_adc(void);
 u8  get_adc(void);
@@ -54,5 +56,9 @@ void uart_init(void);
 void uart_putc (char send);
 void uart_puts (const char *send);
 void print (const char * str);
+void pgmspace_print (const char * pstr);
+#define pprint(a) pgmspace_print(PSTR(a))
+
+
 
 #endif //HAL_H
