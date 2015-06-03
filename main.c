@@ -13,12 +13,7 @@ u8 pwm_global;
 microrl_t rl;
 microrl_t * prl = &rl;
 
-// Task's poll intervals
-const u16 led_short_ms = 10;
-const u16 pwm_cycle_ms = 3000;
-
 // Function prototypes ==========================================================
-void led_blink(void);
 //
 
 // Interrupts ===================================================================
@@ -34,7 +29,7 @@ ISR(USART_RXC_vect) //UART recieve
 }
 
 /*unsigned long to ansi*/
-char *ultoa(u32 num)
+const char *ultoa32(u32 num)
 {
 	static char buf[11];
 	char *ptr;
@@ -55,19 +50,13 @@ void print_temp(void)
 	u8 temp = 0; 
 	convert(temp_18b20(), &temp, &frac);
 	char *res;
-	res = ultoa(temp);
+	res = ultoa32(temp);
 	uart_puts("temp =");
 	uart_puts(res);
-	uart_puts(".");
-	res = ultoa(frac);
-	uart_puts(res);
+	//uart_puts(".");
+	//res = ultoa32(frac);
+	//uart_puts(res);
 	uart_puts(" deg\n\r");
-}
-
-void led_blink(void)
-{
-	//RGB_PORT ^= (1<<RGB_RED_PIN)|(1<<RGB_BLUE_PIN)|(1<<RGB_GREEN_PIN);	//blue blink
-	SetTimerTask(led_blink, led_short_ms);
 }
 
 void main(void) __attribute__((noreturn));
@@ -101,12 +90,9 @@ void main(void)
 	sei();//enable interrupts
 
 	// backgroud tast start
-	SetTimerTask(led_blink, led_short_ms);
-	SetTimerTask(process_exec, 10);
 
-	//SetTask(pwm_cycle);
 
-	pprint("digital started\n\r");
+	pprint("\n\rdigital started\n\r");
 	for(;;) {
 		TaskManager();
 	}

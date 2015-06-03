@@ -42,7 +42,11 @@
 
 //functions declarations
 void init_gpio(void);
-u8 get_current_from_switch(void);
+
+void led_off(void);
+void led_red_on(void);
+void led_green_on(void);
+void led_blue_on(void);
 
 void timer1_init(void);
 void timer2_init(void);
@@ -59,6 +63,6 @@ void print (const char * str);
 void pgmspace_print (const char * pstr);
 #define pprint(a) pgmspace_print(PSTR(a))
 
-
+const char *ultoa32(u32 num);
 
 #endif //HAL_H

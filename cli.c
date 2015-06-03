@@ -34,7 +34,8 @@
 // arguments for process
 	#define _P_START       "start"
 	#define _P_STOP        "stop"
-	
+
+#ifdef _USE_COMPLETE
 
 #define _NUM_OF_CMD 4	//5
 #define _NUM_OF_SETGET_SCMD 2
@@ -45,10 +46,6 @@
 
 //available  commands
 char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_SET, _CMD_GET/*, CMD_PROCESS*/};
-// 'set/get' command argements
-char * set_get_key [] = {_SG_PWM, _G_TEMP, _G_STATE};
-
-#ifdef _USE_COMPLETE
 
 // 'set' command argements
 char * set_key [] = {_SG_PWM, _SG_FREQ, _S_TIME_START, _S_TIME_STOP, _S_TIME_ON, _S_TIME_OFF, _S_CYCLES, _S_CYCLES, _S_LOW_PWM, _S_HIGH_PWM};
@@ -71,8 +68,8 @@ void print_help (void)
 	pprint ("Use TAB key for completion\n\rCommand:\n\r");
 #endif
 	pprint ("\tclear  - clear screen\n\r");
-	pprint ("\tset {pwm, temp, start_time, stop_time, off_time, cycles, lpwm, hpwm} VALUE\n\r");
-	pprint ("\tget {pwm, status}\n\r");
+	pprint ("\tset {pwm, start_time, stop_time, off_time, cycles, lpwm, hpwm} VALUE\n\r");
+	pprint ("\tget {state, pwm, temp}\n\r");
 	pprint ("\tprocess {start, stop}\n\r");
 }
 
@@ -103,28 +100,29 @@ int execute (int argc, const char * const * argv)
 				if (strcmp (argv[i], _SG_PWM)  == 0) {
 					//TODO check val
 					set_timet1_pwm(setvalue);
+					process.forced_pwm = setvalue;
 					pprint ("set pwm ok\n\r");
 					return 0;
 				} else if (strcmp (argv[i], _S_TIME_START)  == 0) {
-					;
+					process.start_time_ms = setvalue;
 					return 0;
 				} else if (strcmp (argv[i], _S_TIME_STOP)  == 0) {
-					;
+					process.stop_time_ms = setvalue;
 					return 0;
 				} else if (strcmp (argv[i], _S_TIME_ON)  == 0) {
-					;
+					process.on_time_ms = setvalue;
 					return 0;
 				} else if (strcmp (argv[i], _S_TIME_OFF)  == 0) {
-					;
+					process.off_time_ms = setvalue;
 					return 0;
 				} else if (strcmp (argv[i], _S_CYCLES)  == 0) {
-					;
+					process.num_cycles = setvalue;
 					return 0;
 				} else if (strcmp (argv[i], _S_LOW_PWM)  == 0) {
-					;
+					process.low_pwm = setvalue;
 					return 0;
 				} else if (strcmp (argv[i], _S_HIGH_PWM)  == 0) {
-					;
+					process.high_pwm = setvalue;
 					return 0;
 				} else {
 					pprint ("No such set command:");
@@ -139,7 +137,9 @@ int execute (int argc, const char * const * argv)
 		} else if (strcmp (argv[i], _CMD_GET) == 0) {
 			if (++i < argc) {
 				if (strcmp (argv[i], _SG_PWM)  == 0) {
-					pprint ("pwm = 50\%\n\r");
+					pprint ("forced pwm ");
+					print  (ultoa32(process.forced_pwm));	
+					pprint ("\%\n\r");
 					return 0;
 				} else if (strcmp (argv[i], _G_TEMP) == 0) {
 					print_temp();

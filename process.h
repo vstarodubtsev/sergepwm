@@ -6,7 +6,7 @@
 enum process_state_t
 {
 	st_terminated,
-	st_stop,
+//	st_stop,
 	st_starting,
 	st_runing,
 	st_stopping,
@@ -34,7 +34,6 @@ void process_init(void);
 void process_start(void);
 void process_stop(void);
 void process_print_state(void);
-//void process_exec(void);
 
 
 

@@ -65,6 +65,9 @@ void timer2_init(void)
 
 void set_timet1_pwm (u8 pwm_persent)
 {
+	if (pwm_persent > 100)
+		pwm_persent = 100;
+
 	u16 val = ((u16)pwm_persent << 2);
 	OCR1AH = val >> 8;
 	OCR1AL = val & 0xFF;
@@ -79,6 +82,28 @@ void init_gpio(void)
 	DDRB |= 1ul << 1;
 //	PORTB  |= 1ul << 1;
 	
+}
+
+void led_off(void)
+{
+	RGB_PORT &= ~((1<<RGB_RED_PIN)|(1<<RGB_BLUE_PIN)|(1<<RGB_GREEN_PIN));
+}
+void led_red_on(void)
+{
+	led_off();
+	RGB_PORT |= (1<<RGB_RED_PIN);
+}
+
+void led_green_on(void)
+{
+	led_off();
+	RGB_PORT |= (1<<RGB_GREEN_PIN);
+}
+
+void led_blue_on(void)
+{
+	led_off();
+	RGB_PORT |= (1<<RGB_BLUE_PIN);
 }
 
 void init_adc(void)
