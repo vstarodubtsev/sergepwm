@@ -37,23 +37,20 @@
 
 #ifdef _USE_COMPLETE
 
-#define _NUM_OF_CMD 4	//5
-#define _NUM_OF_SETGET_SCMD 2
-
-#define _NUM_OF_SET_SCMD 8
-#define _NUM_OF_GET_SCMD 3
-#define _NUM_OF_PROCESS_SCMD 2
-
-//available  commands
-char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_SET, _CMD_GET/*, CMD_PROCESS*/};
+// 
+#define _NUM_OF_CMD 5
+char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_SET, _CMD_GET, _CMD_PROCESS};
 
 // 'set' command argements
-char * set_key [] = {_SG_PWM, _SG_FREQ, _S_TIME_START, _S_TIME_STOP, _S_TIME_ON, _S_TIME_OFF, _S_CYCLES, _S_CYCLES, _S_LOW_PWM, _S_HIGH_PWM};
+#define _NUM_OF_SET_SCMD 8
+char * set_key [] = {_SG_PWM, _SG_FREQ, _S_TIME_START, _S_TIME_STOP, _S_TIME_ON, _S_TIME_OFF, _S_CYCLES, _S_LOW_PWM, _S_HIGH_PWM};
 
 // 'get' command argement
+#define _NUM_OF_GET_SCMD 3
 char * get_key [] = {_SG_PWM, _G_TEMP, _G_STATE};
 
 // 'process' command argements
+#define _NUM_OF_PROCESS_SCMD 2
 char * process_key [] = {_P_START, _P_STOP};
 
 // array for comletion
@@ -67,8 +64,8 @@ void print_help (void)
 #ifdef _USE_COMPLETE
 	pprint ("Use TAB key for completion\n\rCommand:\n\r");
 #endif
-	pprint ("\tclear  - clear screen\n\r");
-	pprint ("\tset {pwm, start_time, stop_time, off_time, cycles, lpwm, hpwm} VALUE\n\r");
+	pprint ("\tclear\n\r");
+	pprint ("\tset {pwm, start_time, stop_time, on_time, off_time, cycles, lpwm, hpwm} VALUE\n\r");
 	pprint ("\tget {state, pwm, temp}\n\r");
 	pprint ("\tprocess {start, stop}\n\r");
 }
@@ -207,14 +204,29 @@ char ** complet (int argc, const char * const * argv)
 				compl_world [j++] = keyworld [i];
 			}
 		}
-	}	else if ((argc > 1) && ((strcmp (argv[0], _CMD_SET)==0) || 
-							    (strcmp (argv[0], _CMD_GET)==0))) { // if command needs subcommands
-		// iterate through subcommand
-		for (int i = 0; i < _NUM_OF_SETGET_SCMD; i++) {
-			if (strstr (set_get_key [i], argv [argc-1]) == set_get_key [i]) {
-				compl_world [j++] = set_get_key [i];
+	} else if (argc > 1) {
+		if (strcmp (argv[0], _CMD_SET)==0) {
+			// iterate through subcommand
+			for (int i = 0; i < _NUM_OF_SET_SCMD; i++) {
+				if (strstr (set_key [i], argv [argc-1]) == set_key [i]) {
+					compl_world [j++] = set_key [i];
+				}
 			}
-		}
+		} else if (strcmp (argv[0], _CMD_GET)==0) {
+			// iterate through subcommand
+			for (int i = 0; i < _NUM_OF_GET_SCMD; i++) {
+				if (strstr (get_key [i], argv [argc-1]) == get_key [i]) {
+					compl_world [j++] = get_key [i];
+				}
+			}
+		} else if (strcmp (argv[0], _CMD_PROCESS)==0) {
+			// iterate through subcommand
+			for (int i = 0; i < _NUM_OF_PROCESS_SCMD; i++) {
+				if (strstr (process_key [i], argv [argc-1]) == process_key [i]) {
+					compl_world [j++] = process_key [i];
+				}
+			}
+		} 
 	} else { // if there is no token in cmdline, just print all available token
 		for (; j < _NUM_OF_CMD; j++) {
 			compl_world[j] = keyworld [j];
@@ -232,6 +244,8 @@ char ** complet (int argc, const char * const * argv)
 #ifdef _USE_CTLR_C
 void sigint (void)
 {
-	pprint ("^C catched!\n\r");
+	//pprint ("^C catched!\n\r");
+	set_timet1_pwm(0);
+	process_stop();
 }
 #endif
