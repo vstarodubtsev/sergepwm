@@ -63,7 +63,7 @@ void main(void) __attribute__((noreturn));
 void main(void)
 {
 	init_gpio();
-	//init_adc();
+	init_adc();
 	uart_init();
 	timer1_init();
 	timer2_init();

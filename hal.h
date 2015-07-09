@@ -37,7 +37,8 @@
 #define DS1820_PIN			PIND
 #define DS1820_PIN_NUM		2
 
-
+#define ADC_CH_INPUT		5
+#define ADC_CH_BULB			4
 
 
 //functions declarations
@@ -54,7 +55,6 @@ void set_timet1_pwm (u8 pwm_persent);
 void timer1_set_freq(u8 freq_khz);
 
 void init_adc(void);
-u8  get_adc(void);
 
 void uart_init(void);
 void uart_putc (char send);
@@ -64,5 +64,8 @@ void pgmspace_print (const char * pstr);
 #define pprint(a) pgmspace_print(PSTR(a))
 
 const char *ultoa32(u32 num);
+
+u16 get_target_voltage(void);
+u16 get_bulp_voltage(void);
 
 #endif //HAL_H

@@ -8,27 +8,43 @@ const u16 time_step = 10; //exec poll timeout in ms
 
 static void process_exec(void);
 
+static u8 is_bulp_ok(void)
+{
+	if (get_bulp_voltage() < 50) {
+		pprint ("Bulp broken! \n\r");
+		process_print_state();
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+
 void process_init(void)
 {
 	process.state  = st_terminated;
 
-	process.start_time_ms = 2000;
-	process.on_time_ms	= 5000;
-	process.stop_time_ms = 1000;
-	process.off_time_ms = 5000;
+	process.start_time_ms = 1000;
+	process.on_time_ms	= 2000;
+	process.stop_time_ms = 0;
+	process.off_time_ms = 3000;
 
 	process.high_pwm = 100;
 	process.low_pwm = 0;
 	
 	process.forced_pwm = 0;
 
-	process.num_cycles = 100;
+	process.num_cycles = 65000;
 	process.passed_cycles = 0;
 }
 
 void process_start(void)
 {
 	if (process.state == st_terminated) {
+
+		if (!is_bulp_ok())
+			return;
+
 		process.state = st_starting;
 		runtime_timeout = process.start_time_ms;
 		led_red_on();
@@ -114,6 +130,17 @@ void process_print_state(void)
 	print  (ultoa32(process.high_pwm));
 	pprint ("\%\n\r");
 
+	pprint ("voltage:");
+	print  (ultoa32(get_target_voltage()/10));
+	pprint (".");
+	print  (ultoa32(get_target_voltage()%10));
+	pprint ("V\n\r");
+
+	pprint ("bilp voltage:");
+	print  (ultoa32(get_bulp_voltage()/10));
+	pprint (".");
+	print  (ultoa32(get_bulp_voltage()%10));
+	pprint ("V\n\r");
 }
 
 
@@ -175,7 +202,9 @@ static void process_exec(void)	//EERTOS TASK
 		} else {
 			process.passed_cycles++;
 
-			if (process.num_cycles) {
+			if (!is_bulp_ok()) {
+				process.state = st_terminated;
+			} else if (process.num_cycles) {
 				process.num_cycles--;
 				runtime_timeout = process.start_time_ms;
 				led_red_on();

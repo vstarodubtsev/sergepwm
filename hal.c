@@ -114,7 +114,7 @@ void init_adc(void)
 	ADCSRA = (1 << ADEN)  | (1 << ADSC) | (1 << ADPS2) | (1 << ADPS0);
 }
 
-u8 get_adc(void)
+u8 get_adc(u8 ch)
 {
 	ADCSRA |= (1 << ADSC);      // Start ADC conversion
 
@@ -123,9 +123,30 @@ u8 get_adc(void)
 	return ADCH;
 }
 
-u16 get_voltage(void)
+u16 get_target_voltage(void)
 {
-	return 0;
+	ADMUX = (0 << REFS1) | (1 << REFS0) | (1 << ADLAR) | (0 << MUX3) | (1 << MUX2)  | (0 << MUX1) | (1 << MUX0); //adc5
+
+	u16 vol = 0;
+	for (u8 i = 0; i < 8; i++)
+		vol+= get_adc(ADC_CH_INPUT);
+
+	vol>>=3;
+
+	return vol*1.22;
+}
+//decivoltage
+u16 get_bulp_voltage(void)
+{
+	ADMUX = (0 << REFS1) | (1 << REFS0) | (1 << ADLAR) | (0 << MUX3) | (1 << MUX2)  | (0 << MUX1) | (0 << MUX0); //adc5
+
+	u16 vol = 0;
+	for (u8 i = 0; i < 16; i++)
+		vol+= get_adc(ADC_CH_BULB);
+
+	vol>>=4;
+
+	return vol*1.22;
 }
 
 void uart_init(void)
